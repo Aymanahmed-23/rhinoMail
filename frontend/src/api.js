@@ -66,7 +66,7 @@ export const userAPI = {
 // Subscription endpoints
 export const subscriptionAPI = {
   subscribe: async (name, email) => {
-    const response = await fetch(`${API_BASE_URL}/subscription/subscribe`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/subscribe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export const subscriptionAPI = {
   },
 
   verifySubscriber: async (token) => {
-    const response = await fetch(`${API_BASE_URL}/subscription/verify/${token}`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/verify/${token}`, {
       method: 'GET',
     });
     if (!response.ok) throw new Error('Verification failed');
@@ -86,7 +86,7 @@ export const subscriptionAPI = {
   },
 
   unsubscribe: async (email) => {
-    const response = await fetch(`${API_BASE_URL}/subscription/unsubscribe`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/unsubscribe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ export const subscriptionAPI = {
   },
 
   getAllSubscribers: async (token) => {
-    const response = await fetch(`${API_BASE_URL}/subscription`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -110,7 +110,7 @@ export const subscriptionAPI = {
   },
 
   sendNewsletter: async (token, newsletterData) => {
-    const response = await fetch(`${API_BASE_URL}/subscription/send`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/send`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
