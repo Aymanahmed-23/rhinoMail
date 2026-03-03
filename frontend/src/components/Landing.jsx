@@ -3,6 +3,7 @@ import { subscriptionAPI } from '../api';
 import './Landing.css';
 
 function Landing() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,8 +11,8 @@ function Landing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email) {
-      setStatus('Please enter your email');
+    if (!name || !email) {
+      setStatus('Please enter your name and email');
       return;
     }
 
@@ -19,8 +20,9 @@ function Landing() {
     setStatus('Subscribing...');
 
     try {
-      await subscriptionAPI.subscribe(email);
+      await subscriptionAPI.subscribe(name, email);
       setStatus('Check your email to verify your subscription!');
+      setName('');
       setEmail('');
     } catch (error) {
       setStatus(error.message || 'Subscription failed. Please try again.');
@@ -51,6 +53,15 @@ function Landing() {
 
           <form onSubmit={handleSubmit} className="signup-form">
             <div className="input-group">
+              <input
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="email-input"
+                disabled={loading}
+                required
+              />
               <input
                 type="email"
                 placeholder="Enter your email"

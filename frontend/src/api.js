@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Auth endpoints
 export const authAPI = {
@@ -65,13 +65,13 @@ export const userAPI = {
 
 // Subscription endpoints
 export const subscriptionAPI = {
-  subscribe: async (email) => {
+  subscribe: async (name, email) => {
     const response = await fetch(`${API_BASE_URL}/subscription/subscribe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ name, email }),
     });
     if (!response.ok) throw new Error('Subscription failed');
     return response.json();

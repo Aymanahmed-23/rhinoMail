@@ -4,28 +4,37 @@ import subscriptionRouter from './routes/subscription.routes.js';
 import connectDB from './database/mongodb.js';
 import express from 'express';
 import errorMiddleware from './middlewares/error.middleware.js';
+import cors from 'cors';
 
 import dotenv from "dotenv";
 dotenv.config();
-const PORT =process.env.PORT;
+const PORT = process.env.PORT;
 const app = express();
+
+// Enable CORS
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(',') 
+  : ['http://localhost:5173'];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/subscriptions', subscriptionRouter);
 
-
 app.get('/', (req, res) => {
-res.send("welcome to API");
-}
-);
+  res.send("welcome to API");
+});
 
-app.listen( PORT, async() =>
-{
+app.listen(PORT, async() => {
     console.log(`API is running on http://localhost:${PORT}`)
     await connectDB();
-} )
+});
 
 app.use(errorMiddleware);
 
