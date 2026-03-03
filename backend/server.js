@@ -4,7 +4,7 @@ import subscriptionRouter from './routes/subscription.routes.js';
 import connectDB from './database/mongodb.js';
 import express from 'express';
 import errorMiddleware from './middlewares/error.middleware.js';
-
+import cors from "cors"; 
 import dotenv from "dotenv";
 dotenv.config();
 const PORT =process.env.PORT;
