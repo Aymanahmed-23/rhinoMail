@@ -54,11 +54,13 @@ function AdminDashboard() {
     setStatus('Adding content...');
 
     try {
-      const newsletterData = {
-        title,
-        description,
-        link,
-      };
+  const newsletterData = {
+  subject: title,
+  content: `
+    <p>${description}</p>
+    <a href="${link}" target="_blank">Read more</a>
+  `,
+};
 
       if (notifySubscribers) {
         await subscriptionAPI.sendNewsletter(token, newsletterData);
