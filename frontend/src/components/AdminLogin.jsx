@@ -23,12 +23,12 @@ function AdminLogin() {
 
     try {
       const response = await authAPI.signIn(email, password);
-      
-      // Store token in localStorage
-      if (response.token) {
-        localStorage.setItem('authToken', response.token);
-      }
 
+const token = response.data?.token;
+
+if (token) {
+  localStorage.setItem('authToken', token);
+}
       navigate('/admin/dashboard');
     } catch (error) {
       setError(error.message || 'Login failed. Please try again.');
