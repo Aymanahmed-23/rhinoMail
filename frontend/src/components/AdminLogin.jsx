@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../api';
 import './AdminLogin.css';
 
 function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,9 +19,23 @@ function AdminLogin() {
       return;
     }
 
-    console.log('Login attempt:', { email, password });
+    setLoading(true);
 
-    navigate('/admin/dashboard');
+    try {
+      const response = await authAPI.signIn(email, password);
+
+const token = response.data?.token;
+
+if (token) {
+  localStorage.setItem('authToken', token);
+}
+      navigate('/admin/dashboard');
+    } catch (error) {
+      setError(error.message || 'Login failed. Please try again.');
+      console.error('Login error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,6 +56,7 @@ function AdminLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="form-input"
+              disabled={loading}
               required
             />
           </div>
@@ -53,14 +70,15 @@ function AdminLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="form-input"
+              disabled={loading}
               required
             />
           </div>
 
           {error && <p className="error-message">{error}</p>}
 
-          <button type="submit" className="login-btn">
-            Sign In
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
