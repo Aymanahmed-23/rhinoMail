@@ -1,26 +1,36 @@
 import { useState } from 'react';
+import { subscriptionAPI } from '../api';
 import './Landing.css';
 
 function Landing() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email) {
-      setStatus('Please enter your email');
+    if (!name || !email) {
+      setStatus('Please enter your name and email');
       return;
     }
 
+    setLoading(true);
     setStatus('Subscribing...');
 
-    console.log('Email submitted:', email);
-
-    setStatus('Thanks! You\'re subscribed!');
-    setEmail('');
-
-    setTimeout(() => setStatus(''), 3000);
+    try {
+      await subscriptionAPI.subscribe(name, email);
+      setStatus('Check your email to verify your subscription!');
+      setName('');
+      setEmail('');
+    } catch (error) {
+      setStatus(error.message || 'Subscription failed. Please try again.');
+      console.error('Subscription error:', error);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setStatus(''), 5000);
+    }
   };
 
   return (
@@ -44,15 +54,25 @@ function Landing() {
           <form onSubmit={handleSubmit} className="signup-form">
             <div className="input-group">
               <input
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="email-input"
+                disabled={loading}
+                required
+              />
+              <input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="email-input"
+                disabled={loading}
                 required
               />
-              <button type="submit" className="submit-btn">
-                Notify Me
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? 'Subscribing...' : 'Notify Me'}
               </button>
             </div>
             {status && <p className="status-message">{status}</p>}
