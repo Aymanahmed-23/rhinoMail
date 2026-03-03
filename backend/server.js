@@ -10,12 +10,7 @@ dotenv.config();
 const PORT =process.env.PORT;
 const app = express();
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL, // recommended
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(express.json());
 
 app.use('/api/v1/auth', authRouter);
