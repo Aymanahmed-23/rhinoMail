@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { subscriptionAPI } from '../api';
 import './Landing.css';
 
 function Landing() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,14 +15,20 @@ function Landing() {
       return;
     }
 
+    setLoading(true);
     setStatus('Subscribing...');
 
-    console.log('Email submitted:', email);
-
-    setStatus('Thanks! You\'re subscribed!');
-    setEmail('');
-
-    setTimeout(() => setStatus(''), 3000);
+    try {
+      await subscriptionAPI.subscribe(email);
+      setStatus('Check your email to verify your subscription!');
+      setEmail('');
+    } catch (error) {
+      setStatus(error.message || 'Subscription failed. Please try again.');
+      console.error('Subscription error:', error);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setStatus(''), 5000);
+    }
   };
 
   return (
@@ -49,10 +57,11 @@ function Landing() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="email-input"
+                disabled={loading}
                 required
               />
-              <button type="submit" className="submit-btn">
-                Notify Me
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? 'Subscribing...' : 'Notify Me'}
               </button>
             </div>
             {status && <p className="status-message">{status}</p>}

@@ -1,62 +1,92 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI, subscriptionAPI } from '../api';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const [token, setToken] = useState(null);
   const [showAddContent, setShowAddContent] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [link, setLink] = useState('');
   const [notifySubscribers, setNotifySubscribers] = useState(true);
   const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [subscribers, setSubscribers] = useState([]);
+  const [contents, setContents] = useState([]);
 
-  const [subscribers] = useState([
-    { id: 1, email: 'user@example.com', date: '2024-01-15' },
-    { id: 2, email: 'dev@example.com', date: '2024-01-16' },
-    { id: 3, email: 'test@example.com', date: '2024-01-17' },
-  ]);
+  useEffect(() => {
+    // Check if user is authenticated
+    const storedToken = localStorage.getItem('authToken');
+    if (!storedToken) {
+      navigate('/admin/login');
+      return;
+    }
+    setToken(storedToken);
+    fetchSubscribers(storedToken);
+  }, [navigate]);
 
-  const [contents] = useState([
-    {
-      id: 1,
-      title: 'Getting Started with React Hooks',
-      description: 'Learn the fundamentals of React Hooks',
-      link: 'https://example.com/react-hooks',
-      date: '2024-01-10',
-    },
-    {
-      id: 2,
-      title: 'Building REST APIs with Node.js',
-      description: 'Complete guide to building scalable APIs',
-      link: 'https://example.com/nodejs-api',
-      date: '2024-01-12',
-    },
-  ]);
+  const fetchSubscribers = async (authToken) => {
+    try {
+      const data = await subscriptionAPI.getAllSubscribers(authToken);
+      setSubscribers(data.subscribers || data || []);
+    } catch (error) {
+      console.error('Failed to fetch subscribers:', error);
+      setStatus('Failed to load subscribers');
+    }
+  };
 
-  const handleLogout = () => {
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    try {
+      await authAPI.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('authToken');
+      navigate('/admin/login');
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setStatus('Adding content...');
 
-    console.log('New content:', {
-      title,
-      description,
-      link,
-      notifySubscribers,
-    });
+    try {
+      const newsletterData = {
+        title,
+        description,
+        link,
+      };
 
-    setStatus('Content added successfully!');
-    setTitle('');
-    setDescription('');
-    setLink('');
-    setNotifySubscribers(true);
-    setShowAddContent(false);
+      if (notifySubscribers) {
+        await subscriptionAPI.sendNewsletter(token, newsletterData);
+      }
 
-    setTimeout(() => setStatus(''), 3000);
+      // Add to contents list (in real app, this would come from backend)
+      const newContent = {
+        id: contents.length + 1,
+        title,
+        description,
+        link,
+        date: new Date().toISOString().split('T')[0],
+      };
+      setContents([newContent, ...contents]);
+
+      setStatus('Content added and subscribers notified!');
+      setTitle('');
+      setDescription('');
+      setLink('');
+      setNotifySubscribers(true);
+      setShowAddContent(false);
+    } catch (error) {
+      setStatus(error.message || 'Failed to add content');
+      console.error('Add content error:', error);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setStatus(''), 4000);
+    }
   };
 
   return (
@@ -97,6 +127,7 @@ function AdminDashboard() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="form-input"
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -110,6 +141,7 @@ function AdminDashboard() {
                     onChange={(e) => setDescription(e.target.value)}
                     className="form-textarea"
                     rows="3"
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -123,6 +155,7 @@ function AdminDashboard() {
                     value={link}
                     onChange={(e) => setLink(e.target.value)}
                     className="form-input"
+                    disabled={loading}
                   />
                 </div>
 
@@ -132,12 +165,13 @@ function AdminDashboard() {
                     type="checkbox"
                     checked={notifySubscribers}
                     onChange={(e) => setNotifySubscribers(e.target.checked)}
+                    disabled={loading}
                   />
                   <label htmlFor="notify">Notify all subscribers via email</label>
                 </div>
 
-                <button type="submit" className="submit-content-btn">
-                  Add Content & Notify
+                <button type="submit" className="submit-content-btn" disabled={loading}>
+                  {loading ? 'Adding...' : 'Add Content & Notify'}
                 </button>
               </form>
             </div>
@@ -167,25 +201,33 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {contents.map((content) => (
-                    <tr key={content.id}>
-                      <td className="table-title">{content.title}</td>
-                      <td>{content.description}</td>
-                      <td>
-                        {content.link && (
-                          <a
-                            href={content.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="table-link"
-                          >
-                            View
-                          </a>
-                        )}
+                  {contents.length > 0 ? (
+                    contents.map((content) => (
+                      <tr key={content.id}>
+                        <td className="table-title">{content.title}</td>
+                        <td>{content.description}</td>
+                        <td>
+                          {content.link && (
+                            <a
+                              href={content.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="table-link"
+                            >
+                              View
+                            </a>
+                          )}
+                        </td>
+                        <td>{content.date}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>
+                        No content yet
                       </td>
-                      <td>{content.date}</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -202,12 +244,20 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {subscribers.map((subscriber) => (
-                    <tr key={subscriber.id}>
-                      <td>{subscriber.email}</td>
-                      <td>{subscriber.date}</td>
+                  {subscribers.length > 0 ? (
+                    subscribers.map((subscriber) => (
+                      <tr key={subscriber.id || subscriber.email}>
+                        <td>{subscriber.email}</td>
+                        <td>{subscriber.subscribedDate || subscriber.date || 'N/A'}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="2" style={{ textAlign: 'center', padding: '20px' }}>
+                        No subscribers yet
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
