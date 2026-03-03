@@ -98,7 +98,7 @@ export const subscriptionAPI = {
   },
 
   getAllSubscribers: async (token) => {
-    const response = await fetch(`${API_BASE_URL}/subscription`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -110,7 +110,7 @@ export const subscriptionAPI = {
   },
 
   sendNewsletter: async (token, newsletterData) => {
-    const response = await fetch(`${API_BASE_URL}/subscription/send`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/send`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
