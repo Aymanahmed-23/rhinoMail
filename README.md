@@ -1,55 +1,93 @@
 # RhinoMail
 
-RhinoMail is a backend API for managing email subscriptions and newsletters.
-It allows users to subscribe, verify their email, unsubscribe, and receive newsletters.
+RhinoMail is a full-stack email subscription and newsletter platform.
+Users can subscribe with their email, verify their subscription, receive newsletters, and unsubscribe anytime.
 
-The API is built with **Node.js, Express, and MongoDB**, and uses **Resend** for sending emails.
+The project is built with **Node.js, Express, MongoDB, and Resend** for the backend, and a **frontend deployed on Vercel**.
+
+---
+
+## Live Deployment
+
+Frontend (Vercel):
+https://rhino-mail-f3wdf3432-ayman-ahmeds-projects-0acc1662.vercel.app/
+
+Backend API (Render):
+https://rhinomail.onrender.com
 
 ---
 
 ## Features
 
 * Email subscription system
-* Email verification with secure token
+* Email verification using secure token
+* Newsletter sending to verified subscribers
 * Unsubscribe functionality
-* Newsletter broadcasting
 * Admin subscriber management
 * Resend email integration
-* MongoDB database
+* MongoDB database storage
 
 ---
 
 ## Tech Stack
 
+### Backend
+
 * Node.js
 * Express.js
-* MongoDB + Mongoose
-* Resend (Email API)
-* Render (Backend Deployment)
-* Vercel (Frontend Deployment)
+* MongoDB
+* Mongoose
+* Resend Email API
+* Render (deployment)
+
+### Frontend
+
+* JavaScript / React (or your framework)
+* Vercel (deployment)
+
+---
+
+## Project Structure
+
+```
+rhinoMail/
+│
+├── frontend/          # Frontend application (Vercel)
+│
+├── backend/           # Express API
+│   ├── controllers/
+│   ├── routes/
+│   ├── middlewares/
+│   ├── models/
+│   ├── utils/
+│   ├── database/
+│   └── server.js / app.js
+│
+├── README.md
+└── LICENSE
+```
 
 ---
 
 ## Branch Workflow
 
-This project uses two main branches:
+This repository uses two main branches:
 
-* **local** → Main development branch
-* **master** → Deployment branch (used by Render)
+**local**
 
-Workflow:
+* Main development branch
+* Used for writing and testing new features
 
-1. Develop features in the `local` branch
-2. Test locally
-3. Merge or copy changes to `master`
-4. Push `master` to GitHub
-5. Render automatically deploys from `master`
+**master**
 
-Example workflow:
+* Production deployment branch
+* Render deploys the backend from this branch
 
-```bash
+Typical workflow:
+
+```
 git checkout local
-# develop features
+# develop and test features
 
 git checkout master
 git merge local
@@ -60,14 +98,14 @@ git push origin master
 
 ## Environment Variables
 
-Create a `.env` file in the root directory.
+Create a `.env` file in the backend directory.
 
 ```
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 RESEND_API_KEY=your_resend_api_key
-BASE_URL=https://your-render-service.onrender.com
-FRONTEND_URL=https://your-frontend.vercel.app
+BASE_URL=https://rhinomail.onrender.com
+FRONTEND_URL=https://your-vercel-app.vercel.app
 ```
 
 ---
@@ -76,20 +114,21 @@ FRONTEND_URL=https://your-frontend.vercel.app
 
 Clone the repository:
 
-```bash
+```
 git clone https://github.com/Aymanahmed-23/rhinoMail.git
 cd rhinoMail
 ```
 
-Install dependencies:
+Install backend dependencies:
 
-```bash
+```
+cd backend
 npm install
 ```
 
 Run the development server:
 
-```bash
+```
 npm run dev
 ```
 
@@ -97,14 +136,14 @@ npm run dev
 
 ## API Endpoints
 
-### Auth
+### Authentication
 
 ```
 POST /api/v1/auth/sign-in
 POST /api/v1/auth/sign-up
 ```
 
-### Subscription
+### Subscriptions
 
 ```
 POST /api/v1/subscriptions/subscribe
@@ -121,20 +160,6 @@ POST /api/v1/subscriptions/newsletter
 
 ---
 
-## Deployment
+## Email System
 
-Backend is deployed on **Render**.
-
-Deployment branch: `master`
-
-Example base URL:
-
-```
-https://rhinomail.onrender.com
-```
-
----
-
-## License
-
-MIT License
+RhinoMail uses **Resend**
